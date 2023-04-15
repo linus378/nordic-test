@@ -35,7 +35,7 @@ void loop() {
   u8g2.firstPage();
   do {
     u8g2.setFont(u8g2_font_ncenB14_tr);
-    u8g2.drawStr(0,20,text);
+    u8g2.drawStr(0,20,"testwas");
   } while ( u8g2.nextPage() );
   delay(1000);  
 }
