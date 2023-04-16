@@ -12,10 +12,10 @@ void setup() {
 }
 void loop() {
   count_msg++;
-  String msg_str="Hi Receiver";
+  String msg_str="Hi Receiver ";
   msg_str+=count_msg;
   //const char text[] = "Hi Receiver"; // max. 32 bytes
   //radio.write(&text, sizeof(text));
-  radio.write(&msg_str, sizeof(msg_str));
+  radio.write(&msg_str, msg_str.length());
   delay(2000);
 }
