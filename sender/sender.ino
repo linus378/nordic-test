@@ -3,7 +3,7 @@
 
 long count_msg=0;
 
-RF24 radio(7, 8); // (CE, CSN)
+RF24 radio(4, 5); // (CE, CSN)
 const byte address[6] = "1RF24"; // address / identifier
 void setup() {
   radio.begin();
