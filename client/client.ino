@@ -26,11 +26,11 @@ void setup() {
 
 void loop() { 
   if(radio.available()){
-    oled.setCursorXY(28, 26);
+    oled.clear(); 
+    oled.home(); 
     char text[33] = {0}; 
     radio.read(&text, sizeof(text)-1);
     oled.print(text);
-    oled.rect(0,0,127,63,OLED_STROKE);
     oled.update();
     Serial.println(text);
   }
