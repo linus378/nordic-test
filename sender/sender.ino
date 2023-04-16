@@ -17,6 +17,6 @@ void loop() {
   const char * msg_chr = msg_str.c_str();
   //const char text[] = "Hi Receiver"; // max. 32 bytes
   //radio.write(&text, sizeof(text));
-  radio.write(&msg_chr, strlen(msg_chr));
+  radio.write(&msg_chr, sizeof(msg_chr));
   delay(2000);
 }
