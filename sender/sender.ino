@@ -11,8 +11,8 @@ void setup() {
 void loop() {
   unsigned long time = millis();
   radio.write( &time, sizeof(unsigned long) );
-  delay(2000);
+  delay(200);
   const char text[] = "Hi Receiver"; // max. 32 bytes
   radio.write(&text, sizeof(text));
-  delay(2000);
+  delay(200);
 }
