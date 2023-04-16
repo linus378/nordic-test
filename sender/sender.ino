@@ -9,10 +9,8 @@ void setup() {
   radio.stopListening(); // set as transmitter
 }
 void loop() {
-  unsigned long time = millis();
-  radio.write( &time, sizeof(unsigned long) );
-  delay(200);
   const char text[] = "Hi Receiver"; // max. 32 bytes
   radio.write(&text, sizeof(text));
-  delay(200);
+  
+  delay(2000);
 }
