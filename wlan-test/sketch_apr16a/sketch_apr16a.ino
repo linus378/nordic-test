@@ -28,11 +28,78 @@ RF24 radio(4, 5); // (CE, CSN)
 
 const byte address[6] = "1RF24"; // address / identifier
 
-const int MAX_TEXT_LEN = 32;
+float payload = 0.0;
 
-char text[MAX_TEXT_LEN] = "0";
+void _ant(){
+ server.send(200, "text/html", ant);
+} 
 
-int count = 0;
+void _listening(){
+ server.send(200, "text/html", listening);
+} 
+
+void _no_ant(){
+  server.send(200, "text/html", noant); 
+}
+
+void handleRoot() {
+  sendandcheck();
+}
+
+
+void sendandcheck(){
+  if((millis()%1000) == 0){
+    radio.startListening();  // gentle reminder to listen
+  }
+  if(radio.available()){ 
+    radio.read(&payload, sizeof(payload));
+    payload += 0.1;
+    String message2 = "";
+    message2 += headAndTitle;
+    message2 += listening;
+    message2 += payload;
+    message2 += "</BR></BR>Message recieved ";
+    server.send(200, "text/html", message2);
+    
+    oled.clear(); 
+    oled.home();
+    oled.print("Recieved" + String(payload));
+    oled.update();
+      
+    radio.stopListening();
+   
+    delay(300);
+    if(radio.write(&payload, sizeof(payload))){
+     String message = "";
+    message += headAndTitle;
+    message += ant;
+    message += payload;
+    message += "</BR></BR>Message Send ";
+    
+    oled.clear(); 
+    oled.home();
+    oled.print("Message send" + String(payload));
+    oled.update();  
+    
+      radio.startListening();
+      
+      delay(300);
+    }
+  
+
+}else{
+  String message4 = "";
+    message4 += headAndTitle;
+    message4 += noant;
+    server.send(200, "text/html", message4);
+    oled.clear(); 
+    oled.home();
+    oled.print("No message");
+    oled.update();  
+}
+
+}
+
 
 
 void setup(){
@@ -62,97 +129,6 @@ void setup(){
   
 void loop(){
   server.handleClient();
-   // increment the count variable by 1
-  count++;
-
-  // convert the count variable to a string and store it in the text array
-  String countStr = String(count);
-  countStr.toCharArray(text, sizeof(text));
-
   // delay for 1 second
   delay(300);
-}
-
-
-void sendandcheck(){
-  if((millis()%1000) == 0){
-    radio.startListening();  // gentle reminder to listen
-  }
-  if(radio.available()){
-    char receivedText[33] = {0}; 
-    radio.read(&receivedText, sizeof(receivedText));
-    String message2 = "";
-    message2 += headAndTitle;
-    message2 += listening;
-    message2 += receivedText;
-    message2 += "</BR></BR>Message recieved ";
-    server.send(200, "text/html", message2);
-    oled.clear(); 
-    oled.home();
-    oled.print(receivedText);
-    oled.update();  
-    radio.stopListening();
-    delay(300);
-    if(radio.write(&text, sizeof(text))){
-     String message = "";
-    message += headAndTitle;
-    message += ant;
-    message += text;
-    message += "</BR></BR>Message Send ";
-    oled.clear(); 
-    oled.home();
-    oled.print("Message send");
-    oled.update();  
-      radio.startListening();
-      delay(300);
-    }
-  }
-
-  
-if(radio.available()){
-    char text[33] = {0};
-    radio.read(&text, sizeof(text)-1);
-
-    
-    String message1 = "";
-    message1 += headAndTitle;
-    message1 += ant;
-    message1 += text;
-    server.send(200, "text/html", message1);
-
-    oled.clear(); 
-    oled.home();
-    oled.print(text);
-    oled.update();
-    delay(300);
-    
-}
-else{
-  String message4 = "";
-    message4 += headAndTitle;
-    message4 += noant;
-    server.send(200, "text/html", message4);
-    oled.clear(); 
-    oled.home();
-    oled.print("No message");
-    oled.update();  
-}
-}
-
-
-
-void _ant(){
- server.send(200, "text/html", ant);
-} 
-
-void _listening(){
- server.send(200, "text/html", listening);
-} 
-
-void _no_ant(){
-  server.send(200, "text/html", noant); 
-}
-
-void handleRoot() {
-  sendandcheck();
 }

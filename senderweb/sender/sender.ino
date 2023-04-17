@@ -26,7 +26,7 @@ const int MAX_TEXT_LEN = 32;
 
 char text[MAX_TEXT_LEN] = "0";
 
-int count = 0;
+float payload = 0.0;
 
 void _ant(){
  server.send(200, "text/html", ant);
@@ -53,12 +53,12 @@ void sendandcheck(){
     radio.stopListening(); // set as transmitter
     lastSend = millis();
   
-    if(radio.write(&text, sizeof(text))){
+    if(radio.write(&payload, sizeof(payload))){
       
     String message = "";
     message += headAndTitle;
     message += ant;
-    message += text;
+    message += payload;
     message += "</BR></BR>Message send ";
     server.send(200, "text/html", message);
     radio.startListening();
@@ -67,12 +67,12 @@ void sendandcheck(){
     }
   }
   if(radio.available()){
-    char receivedText[33] = {0}; 
-    radio.read(&receivedText, sizeof(receivedText));
+    radio.read(&payload, sizeof(payload));
+    payload += 0.1;
     String message2 = "";
     message2 += headAndTitle;
     message2 += listening;
-    message2 += receivedText;
+    message2 += payload;
     message2 += "</BR></BR>Message Recieved ";
     server.send(200, "text/html", message2);
     radio.stopListening();
@@ -107,14 +107,6 @@ void setup(){
   
 void loop(){
   server.handleClient();
-  
-  // increment the count variable by 1
-  count++;
-
-  // convert the count variable to a string and store it in the text array
-  String countStr = String(count);
-  countStr.toCharArray(text, sizeof(text));
-
   // delay for 1 second
   delay(300);
 }
