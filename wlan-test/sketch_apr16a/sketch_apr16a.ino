@@ -12,11 +12,13 @@ const char* pass = "o6$#@99#Qs*hNy@9R2HEXARQ5";
 WebServer server(80);
 
 
-String ant= "<a href=\"/ant_\"><button style=\"background: red; green: white; font-size: x-large; \">The Ant is connected</button></a>";
+String ant= "<a href=\"/ant_\"><button style=\"background: green; green: white; font-size: x-large; \">The Ant is connected</button></a>";
+
+String listening= "<a href=\"/listening_\"><button style=\"background: yellow; color: white; font-size: x-large; \">Listening ... </button></a>";
 
 String noant= "<a href=\"/no_ant\"><button style=\"background: red; color: white; font-size: x-large; \">No data recieved</button></a>";
 
-String headAndTitle = "<head><meta http-equiv=\"refresh\" content=\"2\"></head>"
+String headAndTitle = "<head><meta http-equiv=\"refresh\" content=\"0.5\"></head>"
                       "<h1> Trailing Transciever</h1>"
                       "This is recieved </BR></BR>";
                       
@@ -46,6 +48,7 @@ void setup(){
  
   server.on("/",handleRoot);
   server.on("/ant_", _ant );
+  server.on("/listening_", _listening );
   server.on("/no_ant", _no_ant  );
   server.begin();
 
@@ -89,6 +92,7 @@ void sendandcheck(){
     oled.print(receivedText);
     oled.update();  
     radio.stopListening();
+    delay(300);
     if(radio.write(&text, sizeof(text))){
      String message = "";
     message += headAndTitle;
@@ -100,6 +104,7 @@ void sendandcheck(){
     oled.print("Message send");
     oled.update();  
       radio.startListening();
+      delay(300);
     }
   }
 
@@ -119,6 +124,7 @@ if(radio.available()){
     oled.home();
     oled.print(text);
     oled.update();
+    delay(300);
     
 }
 else{
@@ -137,6 +143,10 @@ else{
 
 void _ant(){
  server.send(200, "text/html", ant);
+} 
+
+void _listening(){
+ server.send(200, "text/html", listening);
 } 
 
 void _no_ant(){

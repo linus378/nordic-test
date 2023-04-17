@@ -18,7 +18,7 @@ String listening= "<a href=\"/listening_\"><button style=\"background: yellow; c
 
 String noant= "<a href=\"/no_ant\"><button style=\"background: red; color: white; font-size: x-large; \">No data being send </button></a>";
 
-String headAndTitle = "<head><meta http-equiv=\"refresh\" content=\"0.1\"></head>"
+String headAndTitle = "<head><meta http-equiv=\"refresh\" content=\"0.5\"></head>"
                       "<h1>Leading Transciever</h1>"
                       "Transmitter Status </BR></BR>";
 
@@ -62,6 +62,7 @@ void sendandcheck(){
     message += "</BR></BR>Message Send ";
     server.send(200, "text/html", message);
     radio.startListening();
+    delay(300);
     
     }
   }
@@ -75,13 +76,14 @@ void sendandcheck(){
     message2 += "</BR></BR>Message Recieved ";
     server.send(200, "text/html", message2);
     radio.stopListening();
+    delay(300);
   }
 
 else{
   String message1 = "";
     message1 += headAndTitle;
     message1 += noant;
-    server.send(200, "text/html", message1);  
+    server.send(200, "text/html", message1);
 }
 }
 
