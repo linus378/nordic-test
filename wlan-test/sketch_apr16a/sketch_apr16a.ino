@@ -12,13 +12,13 @@ const char* pass = "o6$#@99#Qs*hNy@9R2HEXARQ5";
 WebServer server(80);
 
 
-String ant= "<a href=\"/ant_\"><button style=\"background: red; color: white; font-size: x-large; \">The Ant is connected</button></a>";
+String ant= "<a href=\"/ant_\"><button style=\"background: red; green: white; font-size: x-large; \">The Ant is connected</button></a>";
 
-String noant= "<a href=\"/no_ant\"><button style=\"background: red; color: white; font-size: x-large; \">Ant no no</button></a>";
+String noant= "<a href=\"/no_ant\"><button style=\"background: red; color: white; font-size: x-large; \">No data recieved</button></a>";
 
 String headAndTitle = "<head><meta http-equiv=\"refresh\" content=\"2\"></head>"
-                      "<h1> Antenna connected</h1>"
-                      "This is recieved/BR></BR>";
+                      "<h1> Trailing Transciever</h1>"
+                      "This is recieved </BR></BR>";
                       
                       
 RF24 radio(4, 5); // (CE, CSN)
@@ -26,13 +26,22 @@ RF24 radio(4, 5); // (CE, CSN)
 
 const byte address[6] = "1RF24"; // address / identifier
 
+const int MAX_TEXT_LEN = 32;
+
+char text[MAX_TEXT_LEN] = "0";
+
+int count = 0;
+
+
 void setup(){
   WiFi.begin(ssid, pass);
   WiFi.status();
 
- 
   radio.begin();
-  radio.openReadingPipe(0,address); // set the address for pipe 0
+  radio.setPALevel(RF24_PA_LOW); // sufficient for tests side by side 
+   
+  radio.openReadingPipe(0,address); // set the address
+  radio.openWritingPipe(address);
   radio.startListening(); // set as receiver
  
   server.on("/",handleRoot);
@@ -50,10 +59,51 @@ void setup(){
   
 void loop(){
   server.handleClient();
+   // increment the count variable by 1
+  count++;
+
+  // convert the count variable to a string and store it in the text array
+  String countStr = String(count);
+  countStr.toCharArray(text, sizeof(text));
+
+  // delay for 1 second
+  delay(300);
 }
 
 
 void sendandcheck(){
+  if((millis()%1000) == 0){
+    radio.startListening();  // gentle reminder to listen
+  }
+  if(radio.available()){
+    char receivedText[33] = {0}; 
+    radio.read(&receivedText, sizeof(receivedText));
+    String message = "";
+    message += headAndTitle;
+    message += ant;
+    message += receivedText;
+    message += "</BR></BR>Message recieved ";
+    server.send(200, "text/html", message);
+    oled.clear(); 
+    oled.home();
+    oled.print(receivedText);
+    oled.update();  
+    radio.stopListening();
+    if(radio.write(&text, sizeof(text))){
+     String message = "";
+    message += headAndTitle;
+    message += ant;
+    message += text;
+    message += "</BR></BR>Message Send ";
+    oled.clear(); 
+    oled.home();
+    oled.print("Message send");
+    oled.update();  
+      radio.startListening();
+    }
+  }
+
+  
 if(radio.available()){
     char text[33] = {0};
     radio.read(&text, sizeof(text)-1);
@@ -75,7 +125,11 @@ else{
   String message1 = "";
     message1 += headAndTitle;
     message1 += noant;
-    server.send(200, "text/html", message1);  
+    server.send(200, "text/html", message1);
+    oled.clear(); 
+    oled.home();
+    oled.print("No message");
+    oled.update();  
 }
 }
 

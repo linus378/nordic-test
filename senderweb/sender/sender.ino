@@ -12,12 +12,12 @@ RF24 radio(4, 5); // (CE, CSN)
 
 const byte address[6] = "1RF24"; // address / identifier
 
-String ant= "<a href=\"/ant_\"><button style=\"background: red; color: white; font-size: x-large; \">Sending Data ... </button></a>";
+String ant= "<a href=\"/ant_\"><button style=\"background: red; green: white; font-size: x-large; \">Sending Data ... </button></a>";
 
 String noant= "<a href=\"/no_ant\"><button style=\"background: red; color: white; font-size: x-large; \">No data being send </button></a>";
 
 String headAndTitle = "<head><meta http-equiv=\"refresh\" content=\"2\"></head>"
-                      "<h1>Nordic Transmitter</h1>"
+                      "<h1>Leading Transciever</h1>"
                       "Transmitter Status </BR></BR>";
 
 const int MAX_TEXT_LEN = 32;
@@ -25,6 +25,59 @@ const int MAX_TEXT_LEN = 32;
 char text[MAX_TEXT_LEN] = "0";
 
 int count = 0;
+
+void _ant(){
+ server.send(200, "text/html", ant);
+} 
+
+void _no_ant(){
+  server.send(200, "text/html", noant); 
+}
+
+void handleRoot() {
+   sendandcheck();
+}
+
+void sendandcheck(){  
+    unsigned long int sendingPeriod = 2000;
+    static unsigned long int lastSend = 0;
+
+  
+  if((millis()-lastSend)>sendingPeriod){
+    radio.stopListening(); // set as transmitter
+    lastSend = millis();
+  
+    if(radio.write(&text, sizeof(text))){
+      
+    String message = "";
+    message += headAndTitle;
+    message += ant;
+    message += text;
+    message += "</BR></BR>Message Send ";
+    server.send(200, "text/html", message);
+    radio.startListening();
+    
+    }
+  }
+  if(radio.available()){
+    char receivedText[33] = {0}; 
+    radio.read(&receivedText, sizeof(receivedText));
+    String message2 = "";
+    message2 += headAndTitle;
+    message2 += ant;
+    message2 += receivedText;
+    message2 += "</BR></BR>Message Recieved ";
+    server.send(200, "text/html", message2);
+    radio.stopListening();
+  }
+
+else{
+  String message1 = "";
+    message1 += headAndTitle;
+    message1 += noant;
+    server.send(200, "text/html", message1);  
+}
+}
 
 void setup(){
   WiFi.begin(ssid, pass);
@@ -35,12 +88,13 @@ void setup(){
   server.on("/no_ant", _no_ant  );
   server.begin();
   
- 
-}
+  radio.begin();
 
-
-
-
+  radio.setPALevel(RF24_PA_LOW); // sufficient for tests side by side 
+  radio.openWritingPipe(address); // set the address
+  radio.openReadingPipe(1,address);
+  
+  }
   
 void loop(){
   server.handleClient();
@@ -54,43 +108,4 @@ void loop(){
 
   // delay for 1 second
   delay(300);
-}
-
-
-
-void sendandcheck(){
-if(radio.isChipConnected()){
-  
-    radio.begin();
-    radio.openWritingPipe(address); // set the address
-    radio.stopListening(); // set as transmitter
-    
-    radio.write(&text, sizeof(text));
-
-    
-    String message = "";
-    message += headAndTitle;
-    message += ant;
-    message += text;
-    server.send(200, "text/html", message);
-}
-else{
-  String message1 = "";
-    message1 += headAndTitle;
-    message1 += noant;
-    server.send(200, "text/html", message1);  
-}
-}
-
-
-void _ant(){
- server.send(200, "text/html", ant);
-} 
-
-void _no_ant(){
-  server.send(200, "text/html", noant); 
-}
-
-void handleRoot() {
-   sendandcheck();
 }
