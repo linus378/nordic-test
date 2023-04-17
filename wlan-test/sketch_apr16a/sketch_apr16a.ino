@@ -81,12 +81,12 @@ void sendandcheck(){
   if(radio.available()){
     char receivedText[33] = {0}; 
     radio.read(&receivedText, sizeof(receivedText));
-    String message = "";
-    message += headAndTitle;
+    String message2 = "";
+    message2 += headAndTitle;
     message2 += listening;
-    message += receivedText;
-    message += "</BR></BR>Message recieved ";
-    server.send(200, "text/html", message);
+    message2 += receivedText;
+    message2 += "</BR></BR>Message recieved ";
+    server.send(200, "text/html", message2);
     oled.clear(); 
     oled.home();
     oled.print(receivedText);
@@ -114,11 +114,11 @@ if(radio.available()){
     radio.read(&text, sizeof(text)-1);
 
     
-    String message = "";
-    message += headAndTitle;
-    message += ant;
-    message += text;
-    server.send(200, "text/html", message);
+    String message1 = "";
+    message1 += headAndTitle;
+    message1 += ant;
+    message1 += text;
+    server.send(200, "text/html", message1);
 
     oled.clear(); 
     oled.home();
@@ -128,10 +128,10 @@ if(radio.available()){
     
 }
 else{
-  String message1 = "";
-    message1 += headAndTitle;
-    message1 += noant;
-    server.send(200, "text/html", message1);
+  String message4 = "";
+    message4 += headAndTitle;
+    message4 += noant;
+    server.send(200, "text/html", message4);
     oled.clear(); 
     oled.home();
     oled.print("No message");
