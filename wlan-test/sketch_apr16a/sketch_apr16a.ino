@@ -1,99 +1,94 @@
 #include <WebServer.h>
 #define PORT 80
-#include <GyverOLED.h>
 #include "RF24.h"
+#include <GyverOLED.h>
 
 GyverOLED<SSH1106_128x64> oled;
-
-RF24 radio(4, 5); // (CE, CSN)
-
-const byte address[6] = "1RF24"; // address / identifier
 
 const char* ssid = "LI-LAN";
 const char* pass = "o6$#@99#Qs*hNy@9R2HEXARQ5";
 
-char text2[33] = {0}; //
-
-
-IPAddress ip(192,168,178,110);
-IPAddress gateway(192,168,178,1);
-IPAddress subnet(255,255,255,0);
 
 WebServer server(80);
- 
-String text= "<a href=\"/text_\">TEXT</a>";
+
+
+String ant= "<a href=\"/ant_\"><button style=\"background: red; color: white; font-size: x-large; \">The Ant is connected</button></a>";
+
+String noant= "<a href=\"/no_ant\"><button style=\"background: red; color: white; font-size: x-large; \">Ant no no</button></a>";
+
+String headAndTitle = "<head><meta http-equiv=\"refresh\" content=\"2\"></head>"
+                      "<h1> Antenna connected</h1>"
+                      "This is recieved/BR></BR>";
+                      
+                      
+RF24 radio(4, 5); // (CE, CSN)
+
+
+const byte address[6] = "1RF24"; // address / identifier
 
 void setup(){
-  oled.init();  
-  oled.clear();   
-  oled.update(); 
-  oled.setCursorXY(28, 26);   
-  oled.print("in1t....");
-  oled.rect(0,0,127,63,OLED_STROKE);
-  oled.update();
-  Serial.begin(115200);
+  WiFi.begin(ssid, pass);
+  WiFi.status();
+
+ 
   radio.begin();
-  if(radio.isChipConnected()){
-     oled.clear();
-    oled.home();
-    oled.print("Antenna connected");
-    oled.update();
-  }
   radio.openReadingPipe(0,address); // set the address for pipe 0
   radio.startListening(); // set as receiver
-  Serial.println("Minimal Program to switch one LED");
-  Serial.print("Connecting to: ");
-  Serial.println(ssid);
-  WiFi.config(ip, gateway, subnet); 
-  WiFi.begin(ssid, pass);
  
-  delay(1000);
-  
-  while(WiFi.status() != WL_CONNECTED){
-    delay(500); 
-    Serial.print(".");
-  }
-
-  
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.print("IP-Address of ESP32 module: ");
-  Serial.println(WiFi.localIP());
-
-  server.on("/text_", recieved);
   server.on("/",handleRoot);
+  server.on("/ant_", _ant );
+  server.on("/no_ant", _no_ant  );
   server.begin();
+
+  oled.init();  
+  oled.clear();   
+  oled.update();
+  oled.setCursorXY(28, 26);
+  oled.rect(0,0,127,63,OLED_STROKE);
+  oled.update();
 }
   
 void loop(){
-  recieved();
-  //server.handleClient(); 
-  
+  server.handleClient();
+}
+
+
+void sendandcheck(){
+if(radio.available()){
+    char text[33] = {0};
+    radio.read(&text, sizeof(text)-1);
+
+    
+    String message = "";
+    message += headAndTitle;
+    message += ant;
+    message += text;
+    server.send(200, "text/html", message);
+
+    oled.clear(); 
+    oled.home();
+    oled.print(text);
+    oled.update();
+    
+}
+else{
+  String message1 = "";
+    message1 += headAndTitle;
+    message1 += noant;
+    server.send(200, "text/html", message1);  
+}
+}
+
+
+
+void _ant(){
+ server.send(200, "text/html", ant);
+} 
+
+void _no_ant(){
+  server.send(200, "text/html", noant); 
 }
 
 void handleRoot() {
-  String message="<h1>Control your ESP8266 by your Browser</h1>";
-  message += "Minimal version, just one LED</BR></BR>";
-  message += text2;
-  server.send(200, "text/html", message);
-}
-
-void recieved(){
-   if(radio.available()){
-    oled.clear(); 
-    oled.home();
-    radio.read(&text2, sizeof(text2)-1);
-    oled.print(text2);
-    oled.update();
-    Serial.println(text2);
-  }
-  else{
-    oled.clear();
-    oled.home();
-    oled.print("No signal");
-    oled.update();
-  }
-  //delay(1000); 
-
- 
+  sendandcheck();
 }
