@@ -12,11 +12,13 @@ RF24 radio(4, 5); // (CE, CSN)
 
 const byte address[6] = "1RF24"; // address / identifier
 
-String ant= "<a href=\"/ant_\"><button style=\"background: red; green: white; font-size: x-large; \">Sending Data ... </button></a>";
+String ant= "<a href=\"/ant_\"><button style=\"background: green; color: white; font-size: x-large; \">Sending Data ... </button></a>";
+
+String listening= "<a href=\"/listening_\"><button style=\"background: yellow; color: white; font-size: x-large; \">Listening ... </button></a>";
 
 String noant= "<a href=\"/no_ant\"><button style=\"background: red; color: white; font-size: x-large; \">No data being send </button></a>";
 
-String headAndTitle = "<head><meta http-equiv=\"refresh\" content=\"2\"></head>"
+String headAndTitle = "<head><meta http-equiv=\"refresh\" content=\"0.1\"></head>"
                       "<h1>Leading Transciever</h1>"
                       "Transmitter Status </BR></BR>";
 
@@ -28,6 +30,10 @@ int count = 0;
 
 void _ant(){
  server.send(200, "text/html", ant);
+} 
+
+void _listening(){
+ server.send(200, "text/html", listening);
 } 
 
 void _no_ant(){
@@ -64,7 +70,7 @@ void sendandcheck(){
     radio.read(&receivedText, sizeof(receivedText));
     String message2 = "";
     message2 += headAndTitle;
-    message2 += ant;
+    message2 += listening;
     message2 += receivedText;
     message2 += "</BR></BR>Message Recieved ";
     server.send(200, "text/html", message2);
@@ -86,6 +92,7 @@ void setup(){
   server.on("/", handleRoot );
   server.on("/ant_", _ant );
   server.on("/no_ant", _no_ant  );
+  server.on("/listening_", _listening );
   server.begin();
   
   radio.begin();
