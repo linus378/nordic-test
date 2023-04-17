@@ -12,7 +12,7 @@ const char* pass = "o6$#@99#Qs*hNy@9R2HEXARQ5";
 WebServer server(80);
 
 
-String ant= "<a href=\"/ant_\"><button style=\"background: green; green: white; font-size: x-large; \">The Ant is connected</button></a>";
+String ant= "<a href=\"/ant_\"><button style=\"background: green; green: white; font-size: x-large; \">Message send</button></a>";
 
 String listening= "<a href=\"/listening_\"><button style=\"background: yellow; color: white; font-size: x-large; \">Listening ... </button></a>";
 
@@ -83,7 +83,7 @@ void sendandcheck(){
     radio.read(&receivedText, sizeof(receivedText));
     String message = "";
     message += headAndTitle;
-    message += ant;
+    message2 += listening;
     message += receivedText;
     message += "</BR></BR>Message recieved ";
     server.send(200, "text/html", message);

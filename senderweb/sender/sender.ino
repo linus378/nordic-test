@@ -59,7 +59,7 @@ void sendandcheck(){
     message += headAndTitle;
     message += ant;
     message += text;
-    message += "</BR></BR>Message Send ";
+    message += "</BR></BR>Message send ";
     server.send(200, "text/html", message);
     radio.startListening();
     delay(300);
