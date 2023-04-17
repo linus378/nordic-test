@@ -4,8 +4,8 @@
 #define PORT 80
 //#include <arduino-timer.h>
 
-//const char* ssid = "LI-LAN";
-//const char* pass = "o6$#@99#Qs*hNy@9R2HEXARQ5";
+const char* ssid = "LI-LAN";
+const char* pass = "o6$#@99#Qs*hNy@9R2HEXARQ5";
 
 
 WebServer server(80);
@@ -13,7 +13,13 @@ WebServer server(80);
 //auto timer = timer_create_default();
 
 //RF24 radio(4, 5); // (CE, CSN)
-RF24 radio(7, 8); // (CE, CSN)
+//15:37:48.129 -> MOSI: 23
+//15:37:48.129 -> MISO: 19
+//15:37:48.129 -> SCK: 18
+//15:37:48.129 -> SS: 5
+
+//RF24 radio(18,5); // (CE, CSN)
+RF24 radio; // (CE, CSN)
 const byte address[6] = "1RF24"; // address / identifier
 
 String ant= "<a href=\"/ant_\"><button style=\"background: green; color: white; font-size: x-large; \">Sending Data ... </button></a>";
@@ -60,16 +66,19 @@ void setup(){
   server.on("/listening_", _listening );
   server.begin();
   Serial.println("webserver online");
+   while ( !radio.begin()) {
+    Serial.println(F("radio hardware is not responding!!"));
+    delay(1000);
+  }
 
+  //radio.begin();
+  radio.setPALevel(RF24_PA_LOW); // sufficient for tests side by side 
+  radio.openWritingPipe(address); // set the address
+  radio.openReadingPipe(1,address);
   while ( radio.isChipConnected () != true )  {
     delay(1000);
     Serial.println("rf24 not connected yet..");
   }
-  radio.begin();
-  radio.setPALevel(RF24_PA_LOW); // sufficient for tests side by side 
-  radio.openWritingPipe(address); // set the address
-  radio.openReadingPipe(1,address);
-  
   Serial.println("leave setup");
 }
   
